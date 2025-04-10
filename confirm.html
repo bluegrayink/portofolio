@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NFC Card Reader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #status {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tap your NFC card</h1>
+  <div id="status">Waiting for NFC...</div>
+
+  <script>
+    const uidToName = {
+      "04A224B63C2280": "John Doe",
+      "0483E59B2A3281": "Alice",
+      "0491C4D23F4282": "Bob",
+      // Tambahkan UID dan nama lainnya di sini
+    };
+
+    if ('NDEFReader' in window) {
+      const reader = new NDEFReader();
+
+      reader.scan().then(() => {
+        document.getElementById("status").textContent = "Ready. Tap your NFC card.";
+
+        reader.onreading = (event) => {
+          const uid = event.serialNumber.toUpperCase();
+          const name = uidToName[uid] || "Unknown Card";
+          document.getElementById("status").textContent = `Card UID: ${uid} - Name: ${name}`;
+        };
+
+      }).catch(error => {
+        document.getElementById("status").textContent = "Error starting NFC reader: " + error;
+      });
+
+    } else {
+      document.getElementById("status").textContent = "NFC is not supported on this device.";
+    }
+  </script>
+</body>
+</html>
