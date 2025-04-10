@@ -35,12 +35,12 @@
 <body>
   <h1>Tap your NFC card</h1>
   <button id="scanButton">Start NFC Scan</button>
-  <div id="status">Click the button to scan</div>
+  <div id="status">Click the button to start scanning</div>
 
   <script>
     const uidToName = {
-      "04:DE:5A:A0:67:26:81": "Jane Doe",
-      // Tambahkan UID lain di sini
+      "04DE5AA0672681": "Jane Doe",
+      // Tambahkan UID lain tanpa tanda ":" di sini
     };
 
     document.getElementById('scanButton').addEventListener('click', async () => {
@@ -52,16 +52,14 @@
       try {
         const reader = new NDEFReader();
         await reader.scan();
-
         document.getElementById("status").textContent = "Scanning... Tap your card.";
 
         reader.onreading = (event) => {
-          let uid = event.serialNumber.toUpperCase();
-          uid = uid.match(/.{1,2}/g).join(":");
-
+          let uid = event.serialNumber.toUpperCase().replace(/:/g, "");
           const name = uidToName[uid] || "Unknown Card";
-          document.getElementById("status").textContent = `Card UID: ${uid} - Name: ${name}`;
+          document.getElementById("status").textContent = `Name: ${name}`;
         };
+
       } catch (error) {
         document.getElementById("status").textContent = "Error: " + error;
       }
