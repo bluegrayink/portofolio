@@ -8,44 +8,64 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 50px;
+      background-color: #f9f9f9;
     }
+
+    button {
+      font-size: 18px;
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
     #status {
       font-size: 20px;
-      margin-top: 20px;
+      margin-top: 30px;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <h1>Tap your NFC card</h1>
-  <div id="status">Waiting for NFC...</div>
+  <button id="scanButton">Start NFC Scan</button>
+  <div id="status">Click the button to scan</div>
 
   <script>
     const uidToName = {
-      "04:DE:5A:A0:67:26:81" "John Doe",
-      "0483E59B2A3281": "Alice",
-      "0491C4D23F4282": "Bob",
-      // Tambahkan UID dan nama lainnya di sini
+      "04:DE:5A:A0:67:26:81": "Jane Doe",
+      // Tambahkan UID lain di sini
     };
 
-    if ('NDEFReader' in window) {
-      const reader = new NDEFReader();
+    document.getElementById('scanButton').addEventListener('click', async () => {
+      if (!('NDEFReader' in window)) {
+        document.getElementById("status").textContent = "NFC not supported on this device.";
+        return;
+      }
 
-      reader.scan().then(() => {
-        document.getElementById("status").textContent = "Ready. Tap your NFC card.";
+      try {
+        const reader = new NDEFReader();
+        await reader.scan();
+
+        document.getElementById("status").textContent = "Scanning... Tap your card.";
 
         reader.onreading = (event) => {
-          const uid = event.serialNumber.toUpperCase();
+          let uid = event.serialNumber.toUpperCase();
+          uid = uid.match(/.{1,2}/g).join(":");
+
           const name = uidToName[uid] || "Unknown Card";
           document.getElementById("status").textContent = `Card UID: ${uid} - Name: ${name}`;
         };
-
-      }).catch(error => {
-        document.getElementById("status").textContent = "Error starting NFC reader: " + error;
-      });
-
-    } else {
-      document.getElementById("status").textContent = "NFC is not supported on this device.";
-    }
+      } catch (error) {
+        document.getElementById("status").textContent = "Error: " + error;
+      }
+    });
   </script>
 </body>
 </html>
