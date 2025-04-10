@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFC Unlock Page</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+  <!-- Section Utama -->
+  <div class="container text-center mt-5">
+    <h1 class="mb-4">Welcome to the Secret Page</h1>
+    <p class="lead">Tap your NFC card to unlock hidden content.</p>
+    <button id="scanButton" class="btn btn-primary my-3">Tap NFC Card</button>
+
+    <!-- Status -->
+    <div id="status" class="mt-3"></div>
+
+    <!-- Konten Tersembunyi -->
+    <div id="hiddenContent" style="display: none;" class="mt-5">
+      <h3>🎉 You Unlocked the Secret!</h3>
+      <img src="https://via.placeholder.com/500x300.png?text=Secret+Photo" class="img-fluid rounded shadow" alt="Secret Content">
+    </div>
+  </div>
+
+  <!-- Script NFC -->
+  <script>
+    const uidToName = {
+      "C37947BF": "Kristie Gita",
+      "4EDA47BF": "Miyuki Yoruna",
+      "598A4ABF": "Vii Cos"
+      // Tambahkan UID lain jika perlu
+    };
+
+    document.getElementById("scanButton").addEventListener("click", async () => {
+      if (!("NDEFReader" in window)) {
+        document.getElementById("status").innerHTML = `<p class="text-danger">NFC not supported on this device.</p>`;
+        return;
+      }
+
+      try {
+        const reader = new NDEFReader();
+        await reader.scan();
+        document.getElementById("status").innerHTML = `<p class="text-muted">Scanning... Tap your card.</p>`;
+
+        reader.onreading = (event) => {
+          let uid = event.serialNumber.toUpperCase().replace(/:/g, "");
+          const name = uidToName[uid] || "Unknown Card";
+
+          if (name !== "Unknown Card") {
+            document.getElementById("status").innerHTML = `
+              <p class="m-0">Welcome,</p>
+              <h4 class="mb-2">${name}</h4>
+            `;
+            // Tampilkan konten tersembunyi
+            document.getElementById("hiddenContent").style.display = "block";
+          } else {
+            document.getElementById("status").innerHTML = `<p class="text-danger">Card not recognized.</p>`;
+          }
+        };
+
+      } catch (error) {
+        document.getElementById("status").innerHTML = `<p class="text-danger">Error: ${error}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
